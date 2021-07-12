@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import {
   TouchableOpacity,
   ScrollView,
@@ -9,20 +9,32 @@ import { useDispatch, useSelector } from 'react-redux';
 import propTypes from 'prop-types';
 import { AntDesign } from '@expo/vector-icons';
 
-import { getEventsAction, setCurrentEventAction } from '../../redux/actions';
-import { navigate } from '../../Route';
+import getEventsAction from '../../redux/actions';
 
 import styles from './HomeScreenStyles';
+
+let timer;
 
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
 
+  const [updateActive, setUpdateActive] = useState(false);
+
+  const setTimer = () => {
+    clearTimeout(timer);
+    setUpdateActive(false);
+    timer = setTimeout(() => setUpdateActive(true), 15000);
+  };
+
   useEffect(() => {
     dispatch(getEventsAction());
+    setTimer();
     let interval;
     const unsubscribeFocus = navigation.addListener('focus', () => {
+      setTimer();
       interval = setInterval(() => {
         dispatch(getEventsAction());
+        setTimer();
       }, 60000);
     });
 
@@ -36,9 +48,9 @@ const HomeScreen = ({ navigation }) => {
     };
   }, []);
 
-  const onPress = (id) => {
-    dispatch(setCurrentEventAction(id));
-    navigate('EventPage', { eventId: id });
+  const onPress = () => {
+    dispatch(getEventsAction());
+    setTimer();
   };
 
   const events = useSelector((state) => state.eventsReducer.events);
@@ -49,16 +61,18 @@ const HomeScreen = ({ navigation }) => {
         <Text style={styles.title}>
           EventList
         </Text>
-        <TouchableOpacity onPress={() => dispatch(getEventsAction())}>
-          <AntDesign name="reload1" size={24} color="black" />
-        </TouchableOpacity>
+        {updateActive && (
+          <TouchableOpacity onPress={onPress}>
+            <AntDesign name="reload1" size={24} color="black" />
+          </TouchableOpacity>
+        )}
       </View>
       <ScrollView style={styles.list}>
-        {Boolean(events.length) && events.map((item) => (
+        {Boolean(events.length) && events.filter((item, ind) => ind < 25).map((item) => (
           <TouchableOpacity
             key={item.id}
             style={styles.list__elem}
-            onPress={() => onPress(item.id)}
+            onPress={() => navigation.navigate('EventPage', { eventId: item.id })}
           >
             <Text style={styles.list__text}>{item.type}</Text>
           </TouchableOpacity>
@@ -71,6 +85,7 @@ const HomeScreen = ({ navigation }) => {
 HomeScreen.propTypes = {
   navigation: propTypes.shape({
     addListener: propTypes.func.isRequired,
+    navigate: propTypes.func.isRequired,
   }).isRequired,
 };
 

@@ -1,5 +1,4 @@
 const initialState = {
-  curerntEventId: null,
   events: [],
   fetching: false,
   error: null,
@@ -7,11 +6,6 @@ const initialState = {
 
 const eventsReducer = (state = initialState, action) => {
   switch (action.type) {
-    case 'GET_EVENTS': {
-      return {
-        ...state,
-      };
-    }
     case 'GET_EVENTS_SUCCESS': {
       return {
         ...state, events: action.data.data,
@@ -20,11 +14,6 @@ const eventsReducer = (state = initialState, action) => {
     case 'GET_EVENTS_FAILED': {
       return {
         ...state, error: action.error,
-      };
-    }
-    case 'SET_CURRENT_EVENT': {
-      return {
-        ...state, curerntEventId: action.payload,
       };
     }
     default: {
