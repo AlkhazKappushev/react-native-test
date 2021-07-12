@@ -1,7 +1,11 @@
-import { takeEvery } from 'redux-saga/effects';
+import { all } from 'redux-saga/effects';
 
-import eventsSaga from './eventsSaga/eventsSaga';
+import eventSagaWatcher from './eventsSaga/eventsSaga';
+import refreshPollingWatcher from './Polling/polling';
 
 export default function* sagaWatchers() {
-  yield takeEvery('GET_EVENTS', eventsSaga);
+  yield all([
+    eventSagaWatcher(),
+    refreshPollingWatcher(),
+  ]);
 }

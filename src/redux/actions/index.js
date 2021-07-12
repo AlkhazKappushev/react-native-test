@@ -1,5 +1,11 @@
 import { createAction } from 'redux-actions';
 
-const getEventsAction = createAction('GET_EVENTS');
+const refreshPollingAction = createAction('REFRESH_POLLING');
+const startPollingAction = createAction('START_POLLING');
+const stopPollingAction = createAction('STOP_POLLING');
 
-export default getEventsAction;
+export {
+  stopPollingAction,
+  startPollingAction,
+  refreshPollingAction,
+};

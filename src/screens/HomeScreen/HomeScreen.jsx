@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import propTypes from 'prop-types';
 import { AntDesign } from '@expo/vector-icons';
 
-import getEventsAction from '../../redux/actions';
+import { refreshPollingAction, startPollingAction, stopPollingAction } from '../../redux/actions';
 
 import styles from './HomeScreenStyles';
 
@@ -27,19 +27,15 @@ const HomeScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    dispatch(getEventsAction());
-    setTimer();
-    let interval;
+    dispatch(startPollingAction());
+
     const unsubscribeFocus = navigation.addListener('focus', () => {
+      dispatch(startPollingAction());
       setTimer();
-      interval = setInterval(() => {
-        dispatch(getEventsAction());
-        setTimer();
-      }, 60000);
     });
 
     const unsubscribeBlur = navigation.addListener('blur', () => {
-      clearInterval(interval);
+      dispatch(stopPollingAction());
     });
 
     return () => {
@@ -49,11 +45,15 @@ const HomeScreen = ({ navigation }) => {
   }, []);
 
   const onPress = () => {
-    dispatch(getEventsAction());
+    dispatch(refreshPollingAction());
     setTimer();
   };
 
   const events = useSelector((state) => state.eventsReducer.events);
+
+  useEffect(() => {
+    setTimer();
+  }, [events]);
 
   return (
     <View style={styles.container}>
