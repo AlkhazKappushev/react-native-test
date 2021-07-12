@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect } from 'react';
 import {
   TouchableOpacity,
   ScrollView,
@@ -13,25 +13,14 @@ import { refreshPollingAction, startPollingAction, stopPollingAction } from '../
 
 import styles from './HomeScreenStyles';
 
-let timer;
-
 const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-
-  const [updateActive, setUpdateActive] = useState(false);
-
-  const setTimer = () => {
-    clearTimeout(timer);
-    setUpdateActive(false);
-    timer = setTimeout(() => setUpdateActive(true), 15000);
-  };
 
   useEffect(() => {
     dispatch(startPollingAction());
 
     const unsubscribeFocus = navigation.addListener('focus', () => {
       dispatch(startPollingAction());
-      setTimer();
     });
 
     const unsubscribeBlur = navigation.addListener('blur', () => {
@@ -46,14 +35,10 @@ const HomeScreen = ({ navigation }) => {
 
   const onPress = () => {
     dispatch(refreshPollingAction());
-    setTimer();
   };
 
   const events = useSelector((state) => state.eventsReducer.events);
-
-  useEffect(() => {
-    setTimer();
-  }, [events]);
+  const updateButtonActive = useSelector((state) => state.eventsReducer.updateButtonActive);
 
   return (
     <View style={styles.container}>
@@ -61,14 +46,14 @@ const HomeScreen = ({ navigation }) => {
         <Text style={styles.title}>
           EventList
         </Text>
-        {updateActive && (
+        {updateButtonActive && (
           <TouchableOpacity onPress={onPress}>
             <AntDesign name="reload1" size={24} color="black" />
           </TouchableOpacity>
         )}
       </View>
       <ScrollView style={styles.list}>
-        {Boolean(events.length) && events.filter((item, ind) => ind < 25).map((item) => (
+        {Boolean(events.length) && events.map((item) => (
           <TouchableOpacity
             key={item.id}
             style={styles.list__elem}

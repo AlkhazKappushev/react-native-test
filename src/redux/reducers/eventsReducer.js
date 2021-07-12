@@ -1,5 +1,6 @@
 const initialState = {
   events: [],
+  updateButtonActive: false,
   polling: false,
   fetching: false,
   error: null,
@@ -19,12 +20,17 @@ const eventsReducer = (state = initialState, action) => {
     }
     case 'GET_EVENTS_SUCCESS': {
       return {
-        ...state, events: action.data.data,
+        ...state, events: action.data.data, updateButtonActive: false,
       };
     }
     case 'GET_EVENTS_FAILED': {
       return {
         ...state, error: action.error,
+      };
+    }
+    case 'SET_ACTIVE_UPDATE_BUTTON': {
+      return {
+        ...state, updateButtonActive: true,
       };
     }
     default: {
